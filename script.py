@@ -1,16 +1,15 @@
 import requests
 import xml.etree.ElementTree as ET
+from xml.dom import minidom
 
 def main():
     URL = "https://epg.ovh/plar.xml"
     CANALES = ["iTVN", "iTVN extra"]
     
-    # Descarga limpia
     r = requests.get(URL)
     r.encoding = 'utf-8'
     old_root = ET.fromstring(r.text)
     
-    # Nuevo XML con la MISMA cabecera que el original
     new_root = ET.Element("tv")
     for k, v in old_root.attrib.items():
         new_root.set(k, v)
@@ -25,11 +24,12 @@ def main():
         if prog.get("channel") in CANALES:
             new_root.append(prog)
             
-    # Guardado con formato compatible
-    tree = ET.ElementTree(new_root)
-    with open("alvaroguia.xml", "wb") as f:
-        f.write(b'<?xml version="1.0" encoding="UTF-8"?>\n')
-        tree.write(f, encoding="utf-8", xml_declaration=False)
+    # CONVERTIR A TEXTO CON FORMATO (Prettify)
+    xml_str = ET.tostring(new_root, encoding='utf-8')
+    pretty_xml = minidom.parseString(xml_str).toprettyxml(indent="  ")
+    
+    with open("alvaroguia.xml", "w", encoding="utf-8") as f:
+        f.write(pretty_xml)
 
 if __name__ == "__main__":
     main()
