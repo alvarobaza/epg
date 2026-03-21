@@ -4,16 +4,19 @@ from datetime import datetime, timedelta
 
 # Configuración
 URL_EPG = "https://epg.ovh/plar.xml"
-CANALES_INTERES = ["iTVN", "iTVN extra"] # IDs exactos del XML original
+# Mantenemos los IDs originales para buscarlos en la fuente
+CANALES_ORIGINALES = ["iTVN", "iTVN extra"] 
 OFFSET_HORAS = 6
 ARCHIVO_SALIDA = "guia_personalizada.xml"
 
 def corregir_hora(timestr, horas):
-    # Formato: 20260321200000 +0100
     formato = "%Y%m%d%H%M%S %z"
-    dt = datetime.strptime(timestr, formato)
-    dt_corregida = dt + timedelta(hours=horas)
-    return dt_corregida.strftime(formato)
+    try:
+        dt = datetime.strptime(timestr, formato)
+        dt_corregida = dt + timedelta(hours=horas)
+        return dt_corregida.strftime(formato)
+    except:
+        return timestr
 
 def main():
     print("Descargando EPG original...")
@@ -22,23 +25,37 @@ def main():
     
     nuevo_root = ET.Element("tv")
     
-    # Filtrar canales
+    # 1. Procesar Canales
     for canal in root.findall("channel"):
-        if canal.get("id") in CANALES_INTERES:
+        original_id = canal.get("id")
+        if original_id in CANALES_ORIGINALES:
+            # Cambiamos el ID del canal para el nuevo archivo
+            nuevo_id = f"a@ {original_id}"
+            canal.set("id", nuevo_id)
+            
+            # Cambiamos también el nombre visible (display-name)
+            for name in canal.findall("display-name"):
+                name.text = f"a@ {name.text}"
+            
             nuevo_root.append(canal)
             
-    # Filtrar programas y corregir hora
+    # 2. Procesar Programas
     for programa in root.findall("programme"):
-        if programa.get("channel") in CANALES_INTERES:
-            # Corregir inicio y fin
+        original_channel = programa.get("channel")
+        if original_channel in CANALES_ORIGINALES:
+            # IMPORTANTE: El programa debe apuntar al nuevo ID "a@ ..."
+            programa.set("channel", f"a@ {original_channel}")
+            
+            # Corregir las 6 horas
             programa.set("start", corregir_hora(programa.get("start"), OFFSET_HORAS))
             programa.set("stop", corregir_hora(programa.get("stop"), OFFSET_HORAS))
+            
             nuevo_root.append(programa)
             
     # Guardar nuevo XML
     tree = ET.ElementTree(nuevo_root)
     tree.write(ARCHIVO_SALIDA, encoding="utf-8", xml_declaration=True)
-    print(f"Archivo {ARCHIVO_SALIDA} generado con éxito.")
+    print(f"Archivo {ARCHIVO_SALIDA} generado con éxito con prefijos 'a@'.")
 
 if __name__ == "__main__":
     main()
