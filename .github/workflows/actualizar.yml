@@ -1,0 +1,32 @@
+name: Actualizar EPG Personalizado
+
+on:
+  schedule:
+    - cron: '0 0 */3 * *' # Se ejecuta cada 3 días a medianoche
+  workflow_dispatch: # Permite ejecutarlo a mano cuando quieras
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout del código
+        uses: actions/checkout@v3
+
+      - name: Configurar Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.x'
+
+      - name: Instalar librerías
+        run: pip install requests
+
+      - name: Ejecutar script de filtrado
+        run: python script.py
+
+      - name: Guardar cambios en el repositorio
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add guia_personalizada.xml
+          git commit -m "EPG actualizado automáticamente" || exit 0
+          git push
