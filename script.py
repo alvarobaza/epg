@@ -1,50 +1,46 @@
 import requests
 import xml.etree.ElementTree as ET
-from datetime import datetime, timedelta
 
 # Configuración
 URL_EPG = "https://epg.ovh/plar.xml"
 CANALES_INTERES = ["iTVN", "iTVN extra"] 
-OFFSET_HORAS = 6
 ARCHIVO_SALIDA = "alvaroguia.xml"
 
-def corregir_hora(timestr, horas):
-    # Formato original: 20260321200000 +0100
-    formato = "%Y%m%d%H%M%S %z"
-    try:
-        dt = datetime.strptime(timestr, formato)
-        dt_corregida = dt + timedelta(hours=horas)
-        return dt_corregida.strftime(formato)
-    except:
-        return timestr
-
 def main():
-    print("Descargando EPG original...")
+    print("Descargando EPG...")
     r = requests.get(URL_EPG)
     r.encoding = 'utf-8'
     root = ET.fromstring(r.text)
     
+    # Creamos el nuevo ROOT
     nuevo_root = ET.Element("tv")
-    
-    # 1. Copiamos los canales EXACTAMENTE como son originalmente
+
+    # 1. Reconstruir Canales
     for canal in root.findall("channel"):
-        if canal.get("id") in CANALES_INTERES:
-            nuevo_root.append(canal)
-            
-    # 2. Copiamos los programas con el ID original pero con la HORA CAMBIADA
+        id_canal = canal.get("id")
+        if id_canal in CANALES_INTERES:
+            # Creamos un nodo nuevo limpio
+            c = ET.SubElement(nuevo_root, "channel", id=id_canal)
+            for dname in canal.findall("display-name"):
+                dn = ET.SubElement(c, "display-name", lang=dname.get("lang", "pl"))
+                dn.text = dname.text
+            icon = canal.find("icon")
+            if icon is not None:
+                ET.SubElement(c, "icon", src=icon.get("src"))
+
+    # 2. Reconstruir Programas (Sin tocar horas)
     for programa in root.findall("programme"):
-        if programa.get("channel") in CANALES_INTERES:
-            # Modificamos la hora en el mismo elemento
-            programa.set("start", corregir_hora(programa.get("start"), OFFSET_HORAS))
-            programa.set("stop", corregir_hora(programa.get("stop"), OFFSET_HORAS))
+        ch_id = programa.get("channel")
+        if ch_id in CANALES_INTERES:
+            # Copiamos el programa tal cual
             nuevo_root.append(programa)
             
-    # Guardar XML con declaración estándar
+    # Guardar con la cabecera XML que exigen los reproductores
     tree = ET.ElementTree(nuevo_root)
     with open(ARCHIVO_SALIDA, "wb") as f:
         f.write(b'<?xml version="1.0" encoding="UTF-8"?>\n')
         tree.write(f, encoding="utf-8", xml_declaration=False)
-    print(f"Archivo {ARCHIVO_SALIDA} generado con éxito.")
+    print("Archivo generado.")
 
 if __name__ == "__main__":
     main()
