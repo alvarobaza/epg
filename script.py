@@ -6,8 +6,8 @@ from datetime import datetime, timedelta
 URL_EPG = "https://epg.ovh/plar.xml"
 CANALES_ORIGINALES = ["iTVN", "iTVN extra"] 
 OFFSET_HORAS = 6
-ARCHIVO_SALIDA = "guia_personalizada.xml"
-PREFIJO = "1a "
+ARCHIVO_SALIDA = "alvaroguia.xml"
+PREFIJO = "1a_"  # Cambiado a guion bajo para evitar errores de lectura
 
 def corregir_hora(timestr, horas):
     formato = "%Y%m%d%H%M%S %z"
