@@ -4,10 +4,10 @@ from datetime import datetime, timedelta
 
 # Configuración
 URL_EPG = "https://epg.ovh/plar.xml"
-# Mantenemos los IDs originales para buscarlos en la fuente
 CANALES_ORIGINALES = ["iTVN", "iTVN extra"] 
 OFFSET_HORAS = 6
 ARCHIVO_SALIDA = "guia_personalizada.xml"
+PREFIJO = "1a "
 
 def corregir_hora(timestr, horas):
     formato = "%Y%m%d%H%M%S %z"
@@ -29,13 +29,13 @@ def main():
     for canal in root.findall("channel"):
         original_id = canal.get("id")
         if original_id in CANALES_ORIGINALES:
-            # Cambiamos el ID del canal para el nuevo archivo
-            nuevo_id = f"a@ {original_id}"
+            # Nuevo ID con prefijo 1a
+            nuevo_id = f"{PREFIJO}{original_id}"
             canal.set("id", nuevo_id)
             
-            # Cambiamos también el nombre visible (display-name)
+            # Cambiamos el nombre visible
             for name in canal.findall("display-name"):
-                name.text = f"a@ {name.text}"
+                name.text = f"{PREFIJO}{name.text}"
             
             nuevo_root.append(canal)
             
@@ -43,8 +43,8 @@ def main():
     for programa in root.findall("programme"):
         original_channel = programa.get("channel")
         if original_channel in CANALES_ORIGINALES:
-            # IMPORTANTE: El programa debe apuntar al nuevo ID "a@ ..."
-            programa.set("channel", f"a@ {original_channel}")
+            # Apuntamos al nuevo ID 1a ...
+            programa.set("channel", f"{PREFIJO}{original_channel}")
             
             # Corregir las 6 horas
             programa.set("start", corregir_hora(programa.get("start"), OFFSET_HORAS))
@@ -55,7 +55,7 @@ def main():
     # Guardar nuevo XML
     tree = ET.ElementTree(nuevo_root)
     tree.write(ARCHIVO_SALIDA, encoding="utf-8", xml_declaration=True)
-    print(f"Archivo {ARCHIVO_SALIDA} generado con éxito con prefijos 'a@'.")
+    print(f"Archivo {ARCHIVO_SALIDA} generado con éxito con prefijos '{PREFIJO}'.")
 
 if __name__ == "__main__":
     main()
