@@ -1,35 +1,43 @@
 import requests
+import gzip
 import xml.etree.ElementTree as ET
-from xml.dom import minidom
 
 def main():
-    URL = "https://epg.ovh/plar.xml"
-    CANALES = ["iTVN", "iTVN extra"]
+    # 1. Descarga del archivo comprimido de epgshare01
+    url = "https://epgshare01.online/epgshare01/epg_ripper_PL1.xml.gz"
+    print("Descargando EPG de epgshare01...")
     
-    r = requests.get(URL)
-    r.encoding = 'utf-8'
-    old_root = ET.fromstring(r.text)
+    response = requests.get(url, stream=True)
     
-    new_root = ET.Element("tv")
-    for k, v in old_root.attrib.items():
-        new_root.set(k, v)
+    # 2. Descomprimir en memoria
+    with gzip.GzipFile(fileobj=response.raw) as f:
+        xml_content = f.read()
+    
+    root = ET.fromstring(xml_content)
+    
+    # IDs EXACTOS que me has pasado
+    CANALES_TARGET = ["iTVN.pl", "iTVN.Extra.International.pl"]
+    
+    # 3. Crear el nuevo XML con la misma cabecera
+    nuevo_root = ET.Element("tv", root.attrib)
 
-    # 1. Copiar canales
-    for canal in old_root.findall("channel"):
-        if canal.get("id") in CANALES:
-            new_root.append(canal)
+    # Filtrar canales
+    for canal in root.findall("channel"):
+        if canal.get("id") in CANALES_TARGET:
+            nuevo_root.append(canal)
 
-    # 2. Copiar programas
-    for prog in old_root.findall("programme"):
-        if prog.get("channel") in CANALES:
-            new_root.append(prog)
-            
-    # CONVERTIR A TEXTO CON FORMATO (Prettify)
-    xml_str = ET.tostring(new_root, encoding='utf-8')
-    pretty_xml = minidom.parseString(xml_str).toprettyxml(indent="  ")
+    # Filtrar programas
+    for programa in root.findall("programme"):
+        if programa.get("channel") in CANALES_TARGET:
+            nuevo_root.append(programa)
+
+    # 4. Guardado final
+    tree = ET.ElementTree(nuevo_root)
+    with open("alvaroguia.xml", "wb") as f:
+        f.write(b'<?xml version="1.0" encoding="UTF-8"?>\n')
+        tree.write(f, encoding="utf-8", xml_declaration=False)
     
-    with open("alvaroguia.xml", "w", encoding="utf-8") as f:
-        f.write(pretty_xml)
+    print("Archivo alvaroguia.xml generado con éxito.")
 
 if __name__ == "__main__":
     main()
