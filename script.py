@@ -1,39 +1,39 @@
 import requests
 import xml.etree.ElementTree as ET
 
-# Configuración
 URL_EPG = "https://epg.ovh/plar.xml"
-CANALES_INTERES = ["iTVN", "iTVN extra"] 
+# Estos IDs son sagrados, deben ser iguales al original
+CANALES_BUSCADOS = ["iTVN", "iTVN extra"] 
 ARCHIVO_SALIDA = "alvaroguia.xml"
 
 def main():
-    # Descargamos el XML original tal cual
-    r = requests.get(URL_EPG)
-    r.encoding = 'utf-8'
+    # Bajamos el original con la codificación correcta
+    response = requests.get(URL_EPG)
+    response.encoding = 'utf-8'
     
-    # Usamos el parser oficial para mantener la estructura
-    root = ET.fromstring(r.text)
+    # Cargamos el XML completo en memoria
+    root = ET.fromstring(response.text)
     
-    # Creamos un nuevo contenedor TV copiando los atributos del original
-    nuevo_root = ET.Element("tv")
-    for k, v in root.attrib.items():
-        nuevo_root.set(k, v)
+    # Creamos un nuevo contenedor vacío
+    nuevo_xml = ET.Element("tv")
+    # Copiamos los atributos (generador, etc.) del original si los tiene
+    for key, value in root.attrib.items():
+        nuevo_xml.set(key, value)
 
-    # 1. Copiamos los canales (Buscamos los nodos originales para no fallar)
+    # 1. Buscamos y pegamos los canales
     for canal in root.findall("channel"):
-        if canal.get("id") in CANALES_INTERES:
-            nuevo_root.append(canal)
+        if canal.get("id") in CANALES_BUSCADOS:
+            nuevo_xml.append(canal)
 
-    # 2. Copiamos los programas
+    # 2. Buscamos y pegamos los programas
     for programa in root.findall("programme"):
-        if programa.get("channel") in CANALES_INTERES:
-            nuevo_root.append(programa)
+        if programa.get("channel") in CANALES_BUSCADOS:
+            nuevo_xml.append(programa)
             
-    # Guardamos con el formato EXACTO de epg.ovh
-    tree = ET.ElementTree(nuevo_root)
+    # Guardamos el resultado
+    tree = ET.ElementTree(nuevo_xml)
     with open(ARCHIVO_SALIDA, "wb") as f:
         f.write(b'<?xml version="1.0" encoding="UTF-8"?>\n')
-        # No ponemos DOCTYPE si el original no lo requiere, vamos a lo básico
         tree.write(f, encoding="utf-8", xml_declaration=False)
 
 if __name__ == "__main__":
