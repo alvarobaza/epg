@@ -1,5 +1,48 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<tv><channel id="iTVN"><display-name lang="pl">iTVN</display-name><display-name lang="pl">TVN International PL</display-name><display-name lang="pl">ITVN</display-name><display-name lang="pl">iTVN HD</display-name><display-name lang="pl">TVN International</display-name><icon src="http://epg.ovh/logo/iTVN.png" /></channel><channel id="iTVN extra"><display-name lang="pl">iTVN extra</display-name><display-name lang="pl">iTVN Extra PL</display-name><display-name lang="pl">iTVN Extra</display-name><display-name lang="pl">iTVN Extra International</display-name><display-name lang="pl">ITVN Extra</display-name><display-name lang="pl">iTVN Extra HD</display-name><display-name lang="pl">TVN Extra International</display-name><display-name lang="pl">TVN International Extra</display-name><icon src="http://epg.ovh/logo/iTVN+extra.png" /></channel><channel id="iTVN"><display-name lang="pl">iTVN</display-name><display-name lang="pl">TVN International PL</display-name><display-name lang="pl">ITVN</display-name><display-name lang="pl">iTVN HD</display-name><display-name lang="pl">TVN International</display-name><icon src="http://epg.ovh/logo/iTVN.png" /></channel><channel id="iTVN extra"><display-name lang="pl">iTVN extra</display-name><display-name lang="pl">iTVN Extra PL</display-name><display-name lang="pl">iTVN Extra</display-name><display-name lang="pl">iTVN Extra International</display-name><display-name lang="pl">ITVN Extra</display-name><display-name lang="pl">iTVN Extra HD</display-name><display-name lang="pl">TVN Extra International</display-name><display-name lang="pl">TVN International Extra</display-name><icon src="http://epg.ovh/logo/iTVN+extra.png" /></channel><programme start="20260320005000 +0100" stop="20260320013500 +0100" channel="iTVN">
+<!DOCTYPE tv SYSTEM "xmltv.dtd">
+<tv><channel id="iTVN">
+    <display-name lang="pl">iTVN</display-name>
+    <display-name lang="pl">TVN International PL</display-name>
+    <display-name lang="pl">ITVN</display-name>
+    <display-name lang="pl">iTVN HD</display-name>
+    <display-name lang="pl">TVN International</display-name>
+    <icon src="http://epg.ovh/logo/iTVN.png" />
+    <url>http://www.epg.ovh</url>
+  </channel>
+  <channel id="iTVN extra">
+    <display-name lang="pl">iTVN extra</display-name>
+    <display-name lang="pl">iTVN Extra PL</display-name>
+    <display-name lang="pl">iTVN Extra</display-name>
+    <display-name lang="pl">iTVN Extra International</display-name>
+    <display-name lang="pl">ITVN Extra</display-name>
+    <display-name lang="pl">iTVN Extra HD</display-name>
+    <display-name lang="pl">TVN Extra International</display-name>
+    <display-name lang="pl">TVN International Extra</display-name>
+    <icon src="http://epg.ovh/logo/iTVN+extra.png" />
+    <url>http://www.epg.ovh</url>
+  </channel>
+  <channel id="iTVN">
+    <display-name lang="pl">iTVN</display-name>
+    <display-name lang="pl">TVN International PL</display-name>
+    <display-name lang="pl">ITVN</display-name>
+    <display-name lang="pl">iTVN HD</display-name>
+    <display-name lang="pl">TVN International</display-name>
+    <icon src="http://epg.ovh/logo/iTVN.png" />
+    <url>http://www.epg.ovh</url>
+  </channel>
+  <channel id="iTVN extra">
+    <display-name lang="pl">iTVN extra</display-name>
+    <display-name lang="pl">iTVN Extra PL</display-name>
+    <display-name lang="pl">iTVN Extra</display-name>
+    <display-name lang="pl">iTVN Extra International</display-name>
+    <display-name lang="pl">ITVN Extra</display-name>
+    <display-name lang="pl">iTVN Extra HD</display-name>
+    <display-name lang="pl">TVN Extra International</display-name>
+    <display-name lang="pl">TVN International Extra</display-name>
+    <icon src="http://epg.ovh/logo/iTVN+extra.png" />
+    <url>http://www.epg.ovh</url>
+  </channel>
+  <programme start="20260320005000 +0100" stop="20260320013500 +0100" channel="iTVN">
     <title lang="pl">Jestem z Polski 10</title>
     <desc lang="pl">Kolejna grupa kobiet opowiada o swoim codziennym życiu na obczyźnie. Anna od 10 lat mieszka w Zurychu. Pracuje na politechnice, gdzie prowadzi badania nad połączeniami nerwowymi w mózgu. Julia, fotografka i graficzka komputerowa, od 5 lat żyje w Rejkiaviku. Mieszkanie dzieli z innymi emigrantami z całego świata. Dom Izabeli znajduje się we francuskim Kingersheim w Alzacji. W Szwecji, w Sztokholmie, wraz z rodziną żyje zaś Paulina. Kobieta pokaże, jak można aktywnie spędzać czas na wodzie w mieście. Marta, która jest architektem, na swoje miejsce wybrała Budapeszt. Opowie, jak się pracuje z Węgrami
 Paulina Smolińska mieszka w stolicy Szwecji, gdzie pracuje w firmie konsultingowej i przedsiębiorstwie transportowym, a także prowadzi własny biznes. Miasto kobieta pokaże m.in. z perspektywy wody. Opowie o wyspie z ogromnym pchlim targiem, plażą i parkiem. Pokaże też, jak zjeść hot-doga ze śledziem oraz będzie namawiać do spróbowania tradycyjnych bułeczek z cynamonem. Paulina pokaże również najsłynniejszy w Sztokholmie plac zabaw zaprojektowany przez dzieci, lodowy bar oraz niezwykłą restaurację, stworzoną m.in. przez jej koleżankę.</desc>
