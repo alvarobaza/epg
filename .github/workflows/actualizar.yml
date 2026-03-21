@@ -2,8 +2,8 @@ name: Actualizar EPG Personalizado
 
 on:
   schedule:
-    - cron: '0 0 */3 * *' # Se ejecuta cada 3 días a medianoche
-  workflow_dispatch: # Permite ejecutarlo a mano cuando quieras
+    - cron: '0 0 */3 * *'
+  workflow_dispatch:
 
 jobs:
   build:
@@ -27,6 +27,6 @@ jobs:
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
-          git add guia_personalizada.xml
-          git commit -m "EPG actualizado automáticamente" || exit 0
+          git add alvaroguia.xml
+          git commit -m "EPG alvaroguia actualizado" || exit 0
           git push
