@@ -2,12 +2,10 @@ import requests
 import xml.etree.ElementTree as ET
 from datetime import datetime, timedelta
 
-# Configuración
 URL_EPG = "https://epg.ovh/plar.xml"
-# Mapeo: ID Original -> Nuevo ID Técnico (para el M3U/Mapeo manual)
 MAPEO = {
-    "iTVN": "1a_iTVN",
-    "iTVN extra": "1a_iTVN_extra"
+    "iTVN": "ALVARO_iTVN",
+    "iTVN extra": "ALVARO_iTVN_EXTRA"
 }
 OFFSET_HORAS = 6
 ARCHIVO_SALIDA = "alvaroguia.xml"
@@ -23,16 +21,19 @@ def corregir_hora(timestr, horas):
 def main():
     r = requests.get(URL_EPG)
     root = ET.fromstring(r.content)
+    
+    # Cabecera estándar XMLTV
     nuevo_root = ET.Element("tv")
+    nuevo_root.set("generator-info-name", "AlvaroEPG")
+    nuevo_root.set("source-info-name", "EPG_OVH")
 
-    # 1. Crear Canales con nombres MUY claros para el buscador
+    # 1. Canales con nombres únicos para el buscador
     for id_orig, nuevo_id in MAPEO.items():
         c = ET.SubElement(nuevo_root, "channel", id=nuevo_id)
-        # Ponemos el nombre con 1a_ delante para que lo encuentres fácil
         d = ET.SubElement(c, "display-name")
-        d.text = f"{nuevo_id}_ALVARO" 
+        d.text = nuevo_id # Esto es lo que buscarás en la app
 
-    # 2. Procesar Programas
+    # 2. Programas
     for programa in root.findall("programme"):
         ch_orig = programa.get("channel")
         if ch_orig in MAPEO:
@@ -45,8 +46,12 @@ def main():
                 child.text = elem.text
                 for k, v in elem.attrib.items(): child.set(k, v)
 
+    # Guardar con declaración XML completa
     tree = ET.ElementTree(nuevo_root)
-    tree.write(ARCHIVO_SALIDA, encoding="utf-8", xml_declaration=True)
+    with open(ARCHIVO_SALIDA, "wb") as f:
+        f.write(b'<?xml version="1.0" encoding="UTF-8"?>\n')
+        f.write(b'<!DOCTYPE tv SYSTEM "xmltv.dtd">\n')
+        tree.write(f, encoding="utf-8", xml_declaration=False)
 
 if __name__ == "__main__":
     main()
