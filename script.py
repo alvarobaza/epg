@@ -1,10 +1,10 @@
 import requests
 import xml.etree.ElementTree as ET
+from xml.dom import minidom
 from datetime import datetime, timedelta
 
 # Configuración
 URL_EPG = "https://epg.ovh/plar.xml"
-# ID_ORIGINAL -> ID_NUEVO (Solo para el ID técnico)
 MAPEO_CANALES = {
     "iTVN": "1a_iTVN",
     "iTVN extra": "1a_iTVN_extra"
@@ -24,7 +24,8 @@ def corregir_hora(timestr, horas):
 def main():
     print("Descargando EPG original...")
     r = requests.get(URL_EPG)
-    root = ET.fromstring(r.content)
+    r.encoding = 'utf-8'
+    root = ET.fromstring(r.text)
     
     nuevo_root = ET.Element("tv")
     canales_añadidos = set()
@@ -34,41 +35,41 @@ def main():
         id_orig = canal.get("id")
         if id_orig in MAPEO_CANALES and id_orig not in canales_añadidos:
             nuevo_id = MAPEO_CANALES[id_orig]
+            c = ET.SubElement(nuevo_root, "channel", id=nuevo_id)
             
-            # Creamos el canal con el ID técnico (con 1a_)
-            c = ET.Element("channel", id=nuevo_id)
-            
-            # Mantenemos los nombres ORIGINALES (sin el 1a_) para que se vea bien
+            # Buscamos el display-name original
             for name in canal.findall("display-name"):
-                c.append(name)
+                dn = ET.SubElement(c, "display-name", lang=name.get("lang", "pl"))
+                dn.text = name.text
             
-            # Copiamos el icono
             icon = canal.find("icon")
             if icon is not None:
-                c.append(icon)
+                ET.SubElement(c, "icon", src=icon.get("src"))
                 
-            nuevo_root.append(c)
             canales_añadidos.add(id_orig)
             
     # 2. Procesar Programas
     for programa in root.findall("programme"):
         ch_orig = programa.get("channel")
         if ch_orig in MAPEO_CANALES:
-            # Vinculamos el programa al nuevo ID técnico
-            p = ET.Element("programme")
+            p = ET.SubElement(nuevo_root, "programme")
             p.set("channel", MAPEO_CANALES[ch_orig])
             p.set("start", corregir_hora(programa.get("start"), OFFSET_HORAS))
             p.set("stop", corregir_hora(programa.get("stop"), OFFSET_HORAS))
             
-            # Copiamos el contenido del programa (título, desc, etc.)
             for elem in programa:
-                p.append(elem)
-                
-            nuevo_root.append(p)
+                child = ET.SubElement(p, elem.tag)
+                if elem.text: child.text = elem.text
+                for attr_name, attr_value in elem.attrib.items():
+                    child.set(attr_name, attr_value)
             
-    # Guardar XML
-    tree = ET.ElementTree(nuevo_root)
-    tree.write(ARCHIVO_SALIDA, encoding="utf-8", xml_declaration=True)
+    # Guardar con formato legible (Prettify)
+    xml_str = ET.tostring(nuevo_root, encoding='utf-8')
+    pretty_xml = minidom.parseString(xml_str).toprettyxml(indent="  ")
+    
+    with open(ARCHIVO_SALIDA, "w", encoding="utf-8") as f:
+        f.write(pretty_xml)
+        
     print(f"Archivo {ARCHIVO_SALIDA} generado con éxito.")
 
 if __name__ == "__main__":
